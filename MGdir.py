@@ -1,15 +1,25 @@
+#!/usr/bin/env python
 import os, sys
 
-path=sys.argv[1]
-name=sys.argv[2]
-init="vagrant init " + name
 vagrantservices="/home/cherno/vagrantservices"
 pathDB="/home/cherno/vagrantservices/VagrantList.cfg"
 # Este scrip simula como crea un nuevo proyecto (Vagranfile)
 
-def CreateFolder(path, name):
+def CreateProyect(path):
+  if CheckDB(path):
+    return True
+  else:
+    CreateFolder(path)
+    UpdataItenDB(path) 
+    return False
+    
+
+def CreateFolder(path):
   os.mkdir(path)
-  os.chdir(path)
+  return "Se creo el proyecto de manera correcta"
+
+def InitVagrantfile(name):
+  init="vagrant init " + name
   cli = os.popen(init).read()
 
 def DeleteFolder(path):
@@ -35,12 +45,14 @@ def CheckDB(path):
   VagrantList=open(pathDB, "r")
   for i,linea in enumerate(VagrantList):
     if (linea.strip("\n")==path):
-      print linea.strip("\n")
-      print i 
-      break 
+#      print linea.strip("\n")
+#      print i
+      return True 
+      break   
+  return False
   VagrantList.close()
 
-#CreateFolder(path, name)
+#CreateProyect(path, name)
 #UpdataItenDB(path)
-DeleteItenDB(path)
+#DeleteItenDB(path)
 #CheckDB(path)

@@ -1,0 +1,20 @@
+{
+    "Centos": [
+        {
+            "Proyecto": "Centos", 
+            "Ruta": "/home/cherno/vagran/Centos", 
+            "Status VM": [
+                {
+                    "DB": "Not create", 
+                    "Web": "Not create"
+                }
+            ]
+        }
+    ], 
+    "Ubuntu": [
+        {
+            "Proyecto": "Ubuntu", 
+            "Ruta": "/home/cherno/vagran/Ubuntu"
+        }
+    ]
+}

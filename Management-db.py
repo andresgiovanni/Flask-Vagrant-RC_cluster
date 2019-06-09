@@ -1,45 +1,96 @@
 #!/usr/bin/env python
 import json
 import os
+import envConfig
 from pprint import pprint
 
-JSONFILE="/home/cherno/Servidores/Flask-Vagrant-RC_cluster/DB.json"
-VM = {'Web': 'Not create','DB': 'Not create'}
+VM = {'Web': 'Create','DB': 'Not create'}
 
-def readjson():
-    if os.stat(JSONFILE).st_size == 0:
-        print ("Vacio")
+def Readjson():
+    if os.path.isfile(envConfig.JSONFILE) == True:
+        if checkDB():
+            print ("Base de datos vacia")
+        else:
+            with open(envConfig.JSONFILE) as data_file:    
+                data = json.load(data_file)
+                if not data:
+                    print ("Base de datos vacia")
+                else:
+                    pprint(data)
     else:
-        with open(JSONFILE) as data_file:    
-            data = json.load(data_file)
-        pprint(data)
+        print "No se encontro DB. Restaurar DB"
 
-#def writejson(proyect, path, VM)
-def writejson():
+def WriteElemt(elementNEW, VM_status):
     data = {}
-    if os.stat(JSONFILE).st_size == 0:
-        data['Ubuntu'] = []
-        data['Ubuntu'].append({'Proyecto': 'Ubuntu', 'Ruta': '/home/cherno/vagran/Ubuntu'})    
-        with open(JSONFILE, 'w') as file_dest:
-            json.dump(data, file_dest, sort_keys=True, indent=4)
+    if os.path.isfile(envConfig.JSONFILE) == True:
+        if checkDB():
+            data[elementNEW] = []
+            data[elementNEW].append({'Proyecto': elementNEW, 'Ruta': envConfig.VAGRANTPROJECT + elementNEW, 'Status VM': [VM_status]})    
+            with open(envConfig.JSONFILE, 'w') as file_dest:
+                json.dump(data, file_dest, sort_keys=True, indent=4)
+        else:
+            with open(envConfig.JSONFILE, 'r') as file_orig:    
+                data = json.load(file_orig)
+                data[elementNEW] = []
+                data[elementNEW].append({'Proyecto': elementNEW, 'Ruta': envConfig.VAGRANTPROJECT + elementNEW, 'Status VM': [VM_status]})    
+            with open(envConfig.JSONFILE, 'w') as file_dest:
+                json.dump(data, file_dest, sort_keys=True, indent=4)
     else:
-        with open(JSONFILE, 'r') as file_orig:    
-            data = json.load(file_orig)
-        data['Centos'] = []
-        data['Centos'].append({'Proyecto': 'Centos', 'Ruta': '/home/cherno/vagran/Centos', 'Status VM': [VM]})    
-        with open(JSONFILE, 'w') as file_dest:
-            json.dump(data, file_dest, sort_keys=True, indent=4)
+        print "No se encontro DB. Restaurar DB"
 
-#def deletejson(proyect)
-def deletejson():
-    data = {}    
-    with open(JSONFILE, 'r') as file_orig:    
-        data = json.load(file_orig)
-        del data["a"]
-    with open(JSONFILE, 'w') as file_dest:
-        json.dump(data, file_dest, sort_keys=True, indent=4)
+def DeleteElemt(element):
+    if os.path.isfile(envConfig.JSONFILE) == True:
+        with open(envConfig.JSONFILE, 'r') as file_check:    
+            data = json.load(file_check)
+            if element in data:
+                del data[element]
+                with open(envConfig.JSONFILE, 'w') as file_dest:
+                    json.dump(data, file_dest, sort_keys=True, indent=4)
+                    print 'Se elimino el proyecto: ' + element 
+            else:
+                print 'El proyecto: ' + element + ', no existe en la DB'
+    else:
+        print "No se encontro DB. Restaurar DB"
 
-writejson()
-#deletejson()
-readjson()
-#check()
+def ModifyElemt(elementDEL, elementNEW, VM_status):
+    if os.path.isfile(envConfig.JSONFILE) == True:
+        with open(envConfig.JSONFILE, 'r') as file_check:    
+            data = json.load(file_check)
+            if elementDEL in data:
+                del data[elementDEL]
+                data[elementNEW] = []
+                data[elementNEW].append({'Proyecto': elementNEW, 'Ruta': envConfig.VAGRANTPROJECT + elementNEW, 'Status VM': [VM_status]})    
+                with open(envConfig.JSONFILE, 'w') as file_dest:
+                    json.dump(data, file_dest, sort_keys=True, indent=4)
+                if elementDEL == elementNEW:
+                    print 'Se modifico el proyecto: ' + elementDEL 
+                else:
+                    print 'Se modifico proyecto: ' + elementDEL + '\nPor proyecto: ' +elementNEW
+            else:
+                print 'El proyecto: ' + elementDEL + ', no existe en la DB'
+    else:
+        print "No se encontro DB. Restaurar DB"
+
+
+def RestoreDB():
+    if os.path.isfile(envConfig.JSONFILE) == True:
+        print 'Ya existe una base de datos'
+        return True
+    else:
+        json_file = open(envConfig.JSONFILE, "w")
+        json_file.close()
+        print 'Se restauro base de datos'
+        # Crear log de que se crea base de datos
+
+def checkDB():
+    if os.stat(envConfig.JSONFILE).st_size == 0:
+        return True
+    else:
+        return False
+
+
+#WriteElemt("Centos", VM)
+#ModifyElemt("Centos", "ProyectoCentos", VM)
+#DeleteElemt("ProyectoCentos")
+#Readjson()
+#RestoreDB()

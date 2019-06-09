@@ -1,3 +1,3 @@
 VAGRANTSERVICEHOME = "/Users/john/.vagrantservice"
-VAGRANTPROJECT = "/Users/john/Src/vagrant/docker-vagrant"
-VAGRANTPROJECT2 = "/Users/john/Src/vagrant/forwarding"
+VAGRANTPROJECT = "/home/cherno/vagran/"
+JSONFILE="/home/cherno/Servidores/Flask-Vagrant-RC_cluster/DB.json"

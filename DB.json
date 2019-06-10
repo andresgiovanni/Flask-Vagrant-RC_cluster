@@ -1,20 +1,18 @@
 {
-    "Centos": [
+    "kubernetes": [
         {
-            "Proyecto": "Centos", 
-            "Ruta": "/home/cherno/vagran/Centos", 
-            "Status VM": [
-                {
-                    "DB": "Not create", 
-                    "Web": "Not create"
+            "Proyecto": "kubernetes", 
+            "Ruta": "/home/cherno/vagran/kubernetes", 
+            "VMs": {
+                "k8s-master": {
+                    "Hipervisor": "(virtualbox)", 
+                    "Status": "poweroff"
+                }, 
+                "node-1": {
+                    "Hipervisor": "(virtualbox)", 
+                    "Status": "not created"
                 }
-            ]
-        }
-    ], 
-    "Ubuntu": [
-        {
-            "Proyecto": "Ubuntu", 
-            "Ruta": "/home/cherno/vagran/Ubuntu"
+            }
         }
     ]
 }

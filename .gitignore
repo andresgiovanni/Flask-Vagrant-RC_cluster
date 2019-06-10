@@ -1,3 +1,5 @@
 .vagrant/
 .vscode/
 DB.json
+Vagrantfile
+*.pyc

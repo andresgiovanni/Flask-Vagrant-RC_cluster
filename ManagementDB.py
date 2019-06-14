@@ -72,6 +72,19 @@ def ModifyElemt(elementDEL, elementNEW, VM_status):
         print "No se encontro DB. Restaurar DB"
 
 
+def ReadElemt(NameProyect):
+    if checkDB():
+            return False
+    else:
+        with open(envConfig.JSONFILE, 'r') as file_check:    
+            data = json.load(file_check)
+            if NameProyect in data:
+                print True
+                return True
+            else:
+                print False
+                return False
+
 def RestoreDB():
     if os.path.isfile(envConfig.JSONFILE) == True:
         print 'Ya existe una base de datos'
@@ -94,3 +107,4 @@ def checkDB():
 #DeleteElemt("ProyectoCentos")
 #Readjson()
 #RestoreDB()
+#ReadElemt('default')

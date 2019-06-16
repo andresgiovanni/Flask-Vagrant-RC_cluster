@@ -49,9 +49,9 @@ def VmRunning(NameProyect):
     os.chdir(envConfig.HOME)
     return lineas[0]
 
-def VmNotCreates(NameProyect):
+def VmCreated(NameProyect):
     os.chdir(envConfig.VAGRANTPROJECT+NameProyect)
-    myCmd = os.popen("vagrant status | grep not | wc -l").read()
+    myCmd = os.popen("vagrant status | grep 'running\|poweroff\|saved' | wc -l").read()
     lineas = myCmd.split("\n")
     os.chdir(envConfig.HOME)
     return lineas[0]

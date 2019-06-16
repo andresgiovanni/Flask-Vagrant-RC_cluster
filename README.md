@@ -10,3 +10,11 @@ Para llevar a cabo este proyecto se requiere:
  - Tener conocimientos de Python pues es el lenguaje en el que se han desarrollado los scripts de este repositorio.
  - Tener conocimientos de Virtualización en particular de las herramientas VirtualBox y Vagrant.
  - Tener conocimientos de Web Services y un conocimiento del microframework Flask.
+
+# ¿Como usar?
+
+para usar este proyecto:
+
+- Se debe crear un Dir. en ~/.vagrantservice (Directorio de confg)
+- Se debe crear un Arc. en ~/.vagrantservice/DB.json (DB)
+- Se debe crear un Dir. en ~/vagrant  (Directorio de proyecto)

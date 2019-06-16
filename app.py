@@ -31,26 +31,54 @@ def upProyect(NameProyect='default'):
             ManagementDB.WriteElemt(NameProyect, VagrantGest.VagrantStatus(NameProyect))
             return 'Se creo proyecto: ' + NameProyect + '\n'
 
+#curl http://localhost:8000/BorrarProyecto
 @app.route('/BorrarProyecto')
 @app.route('/BorrarProyecto/<NameProyect>')
-@app.route('/BorrarProyecto/<NameProyect>/<VMs>')
-def deleteProyect(NameProyect='default', VMs=''):
+def deleteProyect(NameProyect='default'):
     path = envConfig.VAGRANTPROJECT + NameProyect
-    return VagrantGest.VmNotCreates(NameProyect)
     if ManagementDB.ReadElemt(NameProyect) == True:
         if VagrantGest.CheckVagrant(NameProyect):
+            if VagrantGest.VmCreated(NameProyect)!='0':
             #1) Se destruyen maquinas
-            #if VagrantGest.VmNotCreates != '0':
-            #    return "no hay creadas"
-                #VagrantGest.VagrantDestroy(NameProyect, VMs)
-                #rmtree(path)
-                #ManagementDB.DeleteElemt(NameProyect)
-            #else:
+                VagrantGest.VagrantDestroy(NameProyect, '')
             #2) Se elimina folder
-                #rmtree(path)
+                rmtree(path)
             #3) Se actualiza la DB
-                #ManagementDB.DeleteElemt(NameProyect)
-            return 'Existe en DB y Vagrantfile\n'
+                ManagementDB.DeleteElemt(NameProyect)
+            else:
+            #1) Se elimina folder
+                rmtree(path)
+            #2) Se actualiza la DB
+                ManagementDB.DeleteElemt(NameProyect)
+            return 'El proyecto: ' + NameProyect + ' se elimino de DB\n'
+        else:
+            return 'Existe en DB y pero no hay Vagrantfile\n'
+    else:
+        return 'No existe en DB\n'
+
+#curl http://localhost:8000/StatusProyecto
+@app.route('/StatusProyecto')
+@app.route('/StatusProyecto/<NameProyect>')
+def statusProyect(NameProyect='default'):
+    return  jsonify(ManagementDB.StatusElemt(NameProyect))
+
+@app.route('/BorrarVMProyecto')
+@app.route('/BorrarVMProyecto/<NameProyect>')
+@app.route('/BorrarVMProyecto/<NameProyect>/<VMs>')
+def deleteVMProyect(NameProyect='default', VMs=''):
+    path = envConfig.VAGRANTPROJECT + NameProyect
+    if ManagementDB.ReadElemt(NameProyect) == True:
+        if VagrantGest.CheckVagrant(NameProyect):
+            if VagrantGest.VmCreated(NameProyect)!='0':
+            #1) Se destruyen maquinas
+                VagrantGest.VagrantDestroy(NameProyect, VMs)
+            #2) Actualizar DB
+                ManagementDB.ModifyElemt(NameProyect, NameProyect, VagrantGest.VagrantStatus(NameProyect))
+            #3) Respuesta
+                return 'Del proyecto: ' + NameProyect + ' se elimino ' + VMs + '\n'
+            else:
+            #3) Respuesta
+                return 'El proyecto: ' + NameProyect + ' no tiene VM creadas\n'
         else:
             return 'Existe en DB y pero no hay Vagrantfile\n'
     else:

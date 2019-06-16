@@ -71,6 +71,16 @@ def ModifyElemt(elementDEL, elementNEW, VM_status):
     else:
         print "No se encontro DB. Restaurar DB"
 
+def StatusElemt(element):
+    if os.path.isfile(envConfig.JSONFILE) == True:
+        with open(envConfig.JSONFILE, 'r') as file_check:    
+            data = json.load(file_check)
+            if element in data:
+                return data[element] 
+            else:
+                return 'El proyecto: ' + element + ', no existe en la DB'
+    else:
+        return "No se encontro DB. Restaurar DB"
 
 def ReadElemt(NameProyect):
     if checkDB():
@@ -108,3 +118,4 @@ def checkDB():
 #Readjson()
 #RestoreDB()
 #ReadElemt('default')
+#StatusElemt('default')

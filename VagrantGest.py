@@ -21,7 +21,17 @@ def VagrantStatus(NameProyect):
         else:
             VM = {data[0]:{"Status" : data[1], "Hipervisor" : data[2]}}
             VMs.update(VM)
+    os.chdir(envConfig.HOME)
     return VMs
+
+def VagrantUP(NameProyect, VM):
+    os.chdir(envConfig.VAGRANTPROJECT+NameProyect)
+    comand = "vagrant up " + VM
+    print os.popen(comand).read()
+    #print (myCmd)
+    os.chdir(envConfig.HOME)
+    #return 'Se levanto VM: ' + VM
+
 
 def VagrantDestroy(NameProyect, VMs):
     os.chdir(envConfig.VAGRANTPROJECT+NameProyect)
@@ -77,3 +87,4 @@ def VagrantBoxAdd(VM):
 #ManagementDB.WriteElemt('ubuntu', VagrantStatus('ubuntu'))
 #VmRunning('default')
 #VmNotCreates('default')
+VagrantUP('default', 'node-1')

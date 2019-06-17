@@ -2,6 +2,7 @@
 import json
 import os
 import envConfig
+import subprocess
 import ManagementDB
 
 # Los posibles estados de una maquina son
@@ -26,12 +27,19 @@ def VagrantStatus(NameProyect):
 
 def VagrantUP(NameProyect, VM):
     os.chdir(envConfig.VAGRANTPROJECT+NameProyect)
-    comand = "vagrant up " + VM
-    print os.popen(comand).read()
-    #print (myCmd)
+    command = subprocess.Popen(["vagrant","up",VM],stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    while True:
+        lines = command.stdout.readline()
+        if not lines:
+            break
+        print(lines.rstrip())
     os.chdir(envConfig.HOME)
-    #return 'Se levanto VM: ' + VM
 
+def VagrantHalt(NameProyect, VMs):
+    os.chdir(envConfig.VAGRANTPROJECT+NameProyect)
+    myCmd = os.popen("vagrant halt " + VMs).read()
+    os.chdir(envConfig.HOME)
+    return myCmd
 
 def VagrantDestroy(NameProyect, VMs):
     os.chdir(envConfig.VAGRANTPROJECT+NameProyect)
@@ -45,10 +53,8 @@ def VagrantDestroy(NameProyect, VMs):
     
 def CheckVagrant(NameProyect):
     if os.path.isfile(envConfig.VAGRANTPROJECT+NameProyect+"/Vagrantfile") == True:
-        print True
         return True
     else:
-        print False
         return False
 
 #Este metodo permite verificar si hay maquinas corriendo en un proyecto
@@ -87,4 +93,4 @@ def VagrantBoxAdd(VM):
 #ManagementDB.WriteElemt('ubuntu', VagrantStatus('ubuntu'))
 #VmRunning('default')
 #VmNotCreates('default')
-VagrantUP('default', 'node-1')
+#VagrantUP('default', 'node-1')

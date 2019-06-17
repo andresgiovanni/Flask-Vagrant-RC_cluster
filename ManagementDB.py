@@ -36,7 +36,7 @@ def WriteElemt(elementNEW, VM_status):
             with open(envConfig.JSONFILE, 'w') as file_dest:
                 json.dump(data, file_dest, sort_keys=True, indent=4)
     else:
-        print "No se encontro DB. Restaurar DB"
+        return "No se encontro DB. Restaurar DB"
 
 def DeleteElemt(element):
     if os.path.isfile(envConfig.JSONFILE) == True:
@@ -89,10 +89,8 @@ def ReadElemt(NameProyect):
         with open(envConfig.JSONFILE, 'r') as file_check:    
             data = json.load(file_check)
             if NameProyect in data:
-                print True
                 return True
             else:
-                print False
                 return False
 
 def RestoreDB():

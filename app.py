@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import os
+import threading
 import envConfig
 import ManagementDB
 import VagrantGest
@@ -62,11 +63,42 @@ def deleteProyect(NameProyect='default'):
 def statusProyect(NameProyect='default'):
     return  jsonify(ManagementDB.StatusElemt(NameProyect))
 
-@app.route('/BorrarVMProyecto')
-@app.route('/BorrarVMProyecto/<NameProyect>')
-@app.route('/BorrarVMProyecto/<NameProyect>/<VMs>')
-def deleteVMProyect(NameProyect='default', VMs=''):
-    path = envConfig.VAGRANTPROJECT + NameProyect
+#curl http://localhost:8000/LevantarVM
+@app.route('/LevantarVM')
+@app.route('/LevantarVM/<NameProyect>')
+@app.route('/LevantarVM/<NameProyect>/<VMs>')
+def levantarVM(NameProyect='default', VMs='node-1'):
+    if ManagementDB.ReadElemt(NameProyect) == True:
+        if VagrantGest.CheckVagrant(NameProyect):
+            threadUP = threading.Thread(target=VagrantGest.VagrantUP, args=(NameProyect, VMs))
+            threadUP.start()
+            threadUP.join()
+            return ManagementDB.WriteElemt(NameProyect, VagrantGest.VagrantStatus(NameProyect))
+            return 'Se esta creando la maquina\n'
+        else:
+            return 'Existe en DB y pero no hay Vagrantfile\n'
+    else:
+        return 'No existe en DB\n'
+
+#curl http://localhost:8000/ApagarVM
+@app.route('/ApagarVM')
+@app.route('/ApagarVM/<NameProyect>')
+@app.route('/ApagarVM/<NameProyect>/<VMs>')
+def ApagarVM(NameProyect='default', VMs=''):
+    if ManagementDB.ReadElemt(NameProyect) == True:
+        if VagrantGest.CheckVagrant(NameProyect):
+            return VagrantGest.VagrantHalt(NameProyect, VMs)
+            return ManagementDB.WriteElemt(NameProyect, VagrantGest.VagrantStatus(NameProyect))
+        else:
+            return 'Existe en DB y pero no hay Vagrantfile\n'
+    else:
+        return 'No existe en DB\n'
+
+#curl http://localhost:8000/BorrarVM
+@app.route('/BorrarVM')
+@app.route('/BorrarVM/<NameProyect>')
+@app.route('/BorrarVM/<NameProyect>/<VMs>')
+def deleteVM(NameProyect='default', VMs=''):
     if ManagementDB.ReadElemt(NameProyect) == True:
         if VagrantGest.CheckVagrant(NameProyect):
             if VagrantGest.VmCreated(NameProyect)!='0':

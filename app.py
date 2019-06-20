@@ -72,8 +72,6 @@ def levantarVM(NameProyect='default', VMs='node-1'):
         if VagrantGest.CheckVagrant(NameProyect):
             threadUP = threading.Thread(target=VagrantGest.VagrantUP, args=(NameProyect, VMs))
             threadUP.start()
-            threadUP.join()
-            ManagementDB.WriteElemt(NameProyect, VagrantGest.VagrantStatus(NameProyect))
             return 'Se esta creando la maquina\n'
         else:
             return 'Existe en DB y pero no hay Vagrantfile\n'

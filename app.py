@@ -19,7 +19,7 @@ def upProyect(NameProyect='default'):
     if request.method == 'POST':
         if ManagementDB.ReadElemt(NameProyect) == True:
             #susceptible a mejoras
-            return 'Existe el proyeto: ' + NameProyect + '\n'
+            return jsonify('Existe el proyeto: ' + NameProyect + '\n')
         else:
             #1) Creacion de folder
             os.mkdir(path)
@@ -30,7 +30,7 @@ def upProyect(NameProyect='default'):
             #3) Registro en DB json
             # - VagrantGest.VagrantStatus(NameProyect) => devuelve el estado de VM en forma de Dicc.
             ManagementDB.WriteElemt(NameProyect, VagrantGest.VagrantStatus(NameProyect))
-            return 'Se creo proyecto: ' + NameProyect + '\n'
+            return jsonify('Se creo proyecto: ' + NameProyect + '\n')
 
 #curl http://localhost:8000/BorrarProyecto
 @app.route('/BorrarProyecto')
@@ -51,11 +51,11 @@ def deleteProyect(NameProyect='default'):
                 rmtree(path)
             #2) Se actualiza la DB
                 ManagementDB.DeleteElemt(NameProyect)
-            return 'El proyecto: ' + NameProyect + ' se elimino de DB\n'
+            return jsonify('El proyecto: ' + NameProyect + ' se elimino de DB\n')
         else:
-            return 'Existe en DB y pero no hay Vagrantfile\n'
+            return jsonify('Existe en DB y pero no hay Vagrantfile\n')
     else:
-        return 'No existe en DB\n'
+        return jsonify('No existe en DB\n')
 
 #curl http://localhost:8000/StatusProyecto
 @app.route('/StatusProyecto')
@@ -72,11 +72,13 @@ def levantarVM(NameProyect='default', VMs='node-1'):
         if VagrantGest.CheckVagrant(NameProyect):
             threadUP = threading.Thread(target=VagrantGest.VagrantUP, args=(NameProyect, VMs))
             threadUP.start()
-            return 'Se esta creando la maquina\n'
+            threadUP.join()
+            ManagementDB.WriteElemt(NameProyect, VagrantGest.VagrantStatus(NameProyect))
+            return jsonify('Se esta creando la maquina\n')
         else:
-            return 'Existe en DB y pero no hay Vagrantfile\n'
+            return jsonify('Existe en DB y pero no hay Vagrantfile\n')
     else:
-        return 'No existe en DB\n'
+        return jsonify('No existe en DB\n')
 
 #curl http://localhost:8000/ApagarVM
 @app.route('/ApagarVM')
@@ -85,12 +87,12 @@ def levantarVM(NameProyect='default', VMs='node-1'):
 def ApagarVM(NameProyect='default', VMs=''):
     if ManagementDB.ReadElemt(NameProyect) == True:
         if VagrantGest.CheckVagrant(NameProyect):
-            return VagrantGest.VagrantHalt(NameProyect, VMs)
-            return ManagementDB.WriteElemt(NameProyect, VagrantGest.VagrantStatus(NameProyect))
+            return jsonify(VagrantGest.VagrantHalt(NameProyect, VMs))
+            return jsonify(ManagementDB.WriteElemt(NameProyect, VagrantGest.VagrantStatus(NameProyect)))
         else:
-            return 'Existe en DB y pero no hay Vagrantfile\n'
+            return jsonify('Existe en DB y pero no hay Vagrantfile\n')
     else:
-        return 'No existe en DB\n'
+        return jsonify('No existe en DB\n')
 
 #curl http://localhost:8000/BorrarVM
 @app.route('/BorrarVM')
@@ -105,14 +107,14 @@ def deleteVM(NameProyect='default', VMs=''):
             #2) Actualizar DB
                 ManagementDB.ModifyElemt(NameProyect, NameProyect, VagrantGest.VagrantStatus(NameProyect))
             #3) Respuesta
-                return 'Del proyecto: ' + NameProyect + ' se elimino ' + VMs + '\n'
+                return jsonify('Del proyecto: ' + NameProyect + ' se elimino ' + VMs + '\n')
             else:
             #3) Respuesta
-                return 'El proyecto: ' + NameProyect + ' no tiene VM creadas\n'
+                return jsonify('El proyecto: ' + NameProyect + ' no tiene VM creadas\n')
         else:
-            return 'Existe en DB y pero no hay Vagrantfile\n'
+            return jsonify('Existe en DB y pero no hay Vagrantfile\n')
     else:
-        return 'No existe en DB\n'
+        return jsonify('No existe en DB\n')
 
 if __name__ == "__main__":
     app.run(debug=True, host="0.0.0.0",  port=8000)

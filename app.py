@@ -19,7 +19,7 @@ def upProyect(NameProyect='default'):
     if request.method == 'POST':
         if ManagementDB.ReadElemt(NameProyect) == True:
             #susceptible a mejoras
-            return jsonify('Existe el proyeto: ' + NameProyect + '\n')
+            return jsonify( 'Existe el proyeto: ' + NameProyect + '\n' )
         else:
             #1) Creacion de folder
             os.mkdir(path)
@@ -30,7 +30,7 @@ def upProyect(NameProyect='default'):
             #3) Registro en DB json
             # - VagrantGest.VagrantStatus(NameProyect) => devuelve el estado de VM en forma de Dicc.
             ManagementDB.WriteElemt(NameProyect, VagrantGest.VagrantStatus(NameProyect))
-            return jsonify('Se creo proyecto: ' + NameProyect + '\n')
+            return jsonify( 'Se creo proyecto: ' + NameProyect + '\n' )
 
 #curl http://localhost:8000/BorrarProyecto
 @app.route('/BorrarProyecto')
@@ -51,11 +51,11 @@ def deleteProyect(NameProyect='default'):
                 rmtree(path)
             #2) Se actualiza la DB
                 ManagementDB.DeleteElemt(NameProyect)
-            return jsonify('El proyecto: ' + NameProyect + ' se elimino de DB\n')
+            return jsonify( 'El proyecto: ' + NameProyect + ' se elimino de DB\n' )
         else:
-            return jsonify('Existe en DB y pero no hay Vagrantfile\n')
+            return jsonify( 'Existe en DB y pero no hay Vagrantfile\n' )
     else:
-        return jsonify('No existe en DB\n')
+        return jsonify( 'No existe en DB\n' )
 
 #curl http://localhost:8000/StatusProyecto
 @app.route('/StatusProyecto')
@@ -67,18 +67,16 @@ def statusProyect(NameProyect='default'):
 @app.route('/LevantarVM')
 @app.route('/LevantarVM/<NameProyect>')
 @app.route('/LevantarVM/<NameProyect>/<VMs>')
-def levantarVM(NameProyect='default', VMs='node-1'):
+def levantarVM(NameProyect='default', VMs=''):
     if ManagementDB.ReadElemt(NameProyect) == True:
         if VagrantGest.CheckVagrant(NameProyect):
             threadUP = threading.Thread(target=VagrantGest.VagrantUP, args=(NameProyect, VMs))
             threadUP.start()
-            threadUP.join()
-            ManagementDB.WriteElemt(NameProyect, VagrantGest.VagrantStatus(NameProyect))
-            return jsonify('Se esta creando la maquina\n')
+            return jsonify( 'Levantando maquinas virtuales...\n' )
         else:
-            return jsonify('Existe en DB y pero no hay Vagrantfile\n')
+            return jsonify( 'Existe en DB y pero no hay Vagrantfile\n' )
     else:
-        return jsonify('No existe en DB\n')
+        return jsonify( 'No existe en DB\n' )
 
 #curl http://localhost:8000/ApagarVM
 @app.route('/ApagarVM')
@@ -87,12 +85,13 @@ def levantarVM(NameProyect='default', VMs='node-1'):
 def ApagarVM(NameProyect='default', VMs=''):
     if ManagementDB.ReadElemt(NameProyect) == True:
         if VagrantGest.CheckVagrant(NameProyect):
-            return jsonify(VagrantGest.VagrantHalt(NameProyect, VMs))
-            return jsonify(ManagementDB.WriteElemt(NameProyect, VagrantGest.VagrantStatus(NameProyect)))
+            ApagarVM = threading.Thread(target=VagrantGest.VagrantHalt, args=(NameProyect, VMs))
+            ApagarVM.start()
+            return jsonify( 'Apagando maquinas virtuales...\n' )
         else:
-            return jsonify('Existe en DB y pero no hay Vagrantfile\n')
+            return jsonify( 'Existe en DB y pero no hay Vagrantfile\n' )
     else:
-        return jsonify('No existe en DB\n')
+        return jsonify( 'No existe en DB\n' )
 
 #curl http://localhost:8000/BorrarVM
 @app.route('/BorrarVM')
@@ -107,14 +106,41 @@ def deleteVM(NameProyect='default', VMs=''):
             #2) Actualizar DB
                 ManagementDB.ModifyElemt(NameProyect, NameProyect, VagrantGest.VagrantStatus(NameProyect))
             #3) Respuesta
-                return jsonify('Del proyecto: ' + NameProyect + ' se elimino ' + VMs + '\n')
+                return jsonify( 'Del proyecto: ' + NameProyect + ' se elimino ' + VMs + '\n' )
             else:
             #3) Respuesta
-                return jsonify('El proyecto: ' + NameProyect + ' no tiene VM creadas\n')
+                return jsonify( 'El proyecto: ' + NameProyect + ' no tiene VM creadas\n' )
         else:
-            return jsonify('Existe en DB y pero no hay Vagrantfile\n')
+            return jsonify( 'Existe en DB y pero no hay Vagrantfile\n' )
     else:
-        return jsonify('No existe en DB\n')
+        return jsonify( 'No existe en DB\n' )
+
+#curl http://localhost:8000/StatusDB
+@app.route('/StatusDB')
+def statuDB():
+    return  jsonify(ManagementDB.Readjson())
+
+#curl http://localhost:8000/VagrantVersion
+@app.route('/VagrantVersion')
+def VagrantVersion():
+    return  jsonify(VagrantGest.VagrantVersion())
+
+#curl http://localhost:8000/VagrantBoxList
+@app.route('/VagrantBoxList')
+def VagrantBoxList():
+    return  jsonify(VagrantGest.VagrantBoxList())
+
+#curl http://localhost:8000/VagrantBoxAdd/ubuntu/trusty64
+@app.route('/VagrantBoxAdd/<path:Box>')
+def VagrantBoxAdd(Box=''):
+    threadBoxAdd = threading.Thread(target=VagrantGest.VagrantBoxAdd, args=(Box, ))
+    threadBoxAdd.start()
+    return  jsonify("Se lanzo un hilo ejecutando la tarea\n")
+
+#curl http://localhost:8000/VagrantBoxRemove/ubuntu/trusty64
+@app.route('/VagrantBoxRemove/<path:Box>')
+def VagrantBoxRemove(Box=''):
+    return  jsonify(VagrantGest.VagrantBoxRemove(Box))
 
 if __name__ == "__main__":
     app.run(debug=True, host="0.0.0.0",  port=8000)
